@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>Package vendoring Beckhoff/ADS library</description>
   <maintainer email="nikola.banovic@b-robotized.com">nibanovic</maintainer>
-  <license>b-robotized</license>
+  <license>b-Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
