@@ -4,7 +4,8 @@
   <name>ads_vendor</name>
   <version>0.0.0</version>
   <description>Package vendoring Beckhoff/ADS library</description>
-  <maintainer email="nikola.banovic@b-robotized.com">nibanovic</maintainer>
+  <author email="nikola.banovic@b-robotized.com">Nikola Banovic </author>
+  <maintainer email="nikola.banovic@b-robotized.com">Nikola Banovic</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
