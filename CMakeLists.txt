@@ -56,7 +56,6 @@ ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
     BUILD_BYPRODUCTS  ${EXTERNAL_PROJECT_INSTALL_DIR}/lib/libads.so
                       ${EXTERNAL_PROJECT_INSTALL_DIR}/include/ads/AdsLib.h 
                       ${EXTERNAL_PROJECT_INSTALL_DIR}/include/ads/AdsDef.h  
-                      # You can list other critical files
 
     # logging
     LOG_CONFIGURE     YES
@@ -64,10 +63,23 @@ ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
     LOG_INSTALL       YES
 )
 
-# export hedaers in ads_vendor/include
-ament_export_include_directories(include)
+add_library(ads_vendor INTERFACE)
+add_library(ads_vendor::ads_vendor ALIAS ads_vendor)
 
-# if a package depends on ads_vendor, it also has ads library available
-ament_export_libraries(ads)
+target_include_directories(ads_vendor
+  INTERFACE
+  $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(ads_vendor
+  INTERFACE
+  ${CMAKE_INSTALL_PREFIX}/lib/libads.so
+)
+
+install(
+  TARGETS ads_vendor
+  EXPORT ads_vendor_targets
+)
+
+ament_export_targets(ads_vendor_targets HAS_LIBRARY_TARGET)
 
 ament_package()
