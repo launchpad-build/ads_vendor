@@ -14,7 +14,7 @@ on:
       - '**/CMakeLists.txt'
 jobs:
   source:
-    uses: ros-controls/ros2_control_ci/.github/workflows/reusable-ros-tooling-source-build.yml@master
+    uses: ./.github/workflows/reusable-ros-tooling-source-build.yml
     with:
       ros_distro: jazzy
       ref: jazzy
