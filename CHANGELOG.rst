@@ -2,8 +2,8 @@
 Changelog for package ads_vendor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2025-09-17)
+------------------
 * use modern CMakeLists export
 * add source build CI
 * add pre-commit
