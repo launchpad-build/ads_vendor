@@ -9,6 +9,7 @@
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>git</buildtool_depend> <!-- declared for RPM package -->
 
   <export>
     <build_type>ament_cmake</build_type>
