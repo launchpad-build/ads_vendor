@@ -14,15 +14,24 @@ set(ADS_GIT_TAG "e85ef696447a77039a4c3710d7573c8df32c0d58")
 set(EXTERNAL_PROJECT_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ads_external_build)
 set(EXTERNAL_PROJECT_SOURCE_DIR ${EXTERNAL_PROJECT_PREFIX}/src/Ads)
 set(EXTERNAL_PROJECT_BINARY_DIR ${EXTERNAL_PROJECT_PREFIX}/build/Ads)
+set(EXTERNAL_PROJECT_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}) # ADS library should install its files (libraries, headers) into ads_vendor package install space.
 
-# ADS library should install its files (libraries, headers) into ads_vendor package install space.
-set(EXTERNAL_PROJECT_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+# Conditionally append BUILD_TYPE and PARALLEL_LEVEL to build/install commands for ExternalProject_Add
+set(EXTERNAL_PROJECT_BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR>)
+set(EXTERNAL_PROJECT_INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+if(CMAKE_BUILD_TYPE)
+  message(STATUS "ads_vendor: CMAKE_BUILD_TYPE for ADS library will be: ${CMAKE_BUILD_TYPE}")
+  list(APPEND EXTERNAL_PROJECT_BUILD_COMMAND --config ${CMAKE_BUILD_TYPE})
+  list(APPEND EXTERNAL_PROJECT_INSTALL_COMMAND --config ${CMAKE_BUILD_TYPE})
+else()
   message(STATUS "ads_vendor: No CMAKE_BUILD_TYPE specified, defaulting to 'RelWithDebInfo'.")
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
 endif()
-message(STATUS "ads_vendor: CMAKE_BUILD_TYPE for ADS library will be: ${CMAKE_BUILD_TYPE}")
+
+if(DEFINED CMAKE_BUILD_PARALLEL_LEVEL)
+    list(APPEND ADS_BUILD_COMMAND -j${CMAKE_BUILD_PARALLEL_LEVEL})
+endif()
 
 ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
     # download step
@@ -46,11 +55,10 @@ ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
                       # here we can pass in additional command configs
 
     # build step
-    BUILD_COMMAND     ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${CMAKE_BUILD_TYPE}
-                      -j${CMAKE_BUILD_PARALLEL_LEVEL}
+    BUILD_COMMAND     ${EXTERNAL_PROJECT_BUILD_COMMAND}
 
     # install step
-    INSTALL_COMMAND   ${CMAKE_COMMAND} --install <BINARY_DIR> --config ${CMAKE_BUILD_TYPE}
+    INSTALL_COMMAND   ${EXTERNAL_PROJECT_INSTALL_COMMAND}
 
     # list files that we require to be installed, among others
     BUILD_BYPRODUCTS  ${EXTERNAL_PROJECT_INSTALL_DIR}/lib/libads.so
