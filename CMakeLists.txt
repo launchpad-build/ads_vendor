@@ -16,9 +16,8 @@ set(EXTERNAL_PROJECT_SOURCE_DIR ${EXTERNAL_PROJECT_PREFIX}/src/Ads)
 set(EXTERNAL_PROJECT_BINARY_DIR ${EXTERNAL_PROJECT_PREFIX}/build/Ads)
 set(EXTERNAL_PROJECT_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}) # ADS library should install its files (libraries, headers) into ads_vendor package install space.
 
-# Conditionally append BUILD_TYPE and PARALLEL_LEVEL to build/install commands for ExternalProject_Add
+# Conditionally append BUILD_TYPE and PARALLEL_LEVEL to build command for ExternalProject_Add
 set(EXTERNAL_PROJECT_BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR>)
-set(EXTERNAL_PROJECT_INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>)
 
 if(CMAKE_BUILD_TYPE)
   message(STATUS "ads_vendor: CMAKE_BUILD_TYPE for ADS library will be: ${CMAKE_BUILD_TYPE}")
@@ -40,9 +39,9 @@ ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
 
     # directiories config
     PREFIX            ${EXTERNAL_PROJECT_PREFIX}
-    SOURCE_DIR        ${EXTERNAL_PROJECT_SOURCE_DIR} # passed as <SOURCE_DIR> to commands
-    BINARY_DIR        ${EXTERNAL_PROJECT_BINARY_DIR} # passed as <BINARY_DIR> to commands
-    INSTALL_DIR       ${EXTERNAL_PROJECT_INSTALL_DIR} # passed as <INSTALL_DIR> to commands
+    SOURCE_DIR        ${EXTERNAL_PROJECT_SOURCE_DIR}
+    BINARY_DIR        ${EXTERNAL_PROJECT_BINARY_DIR}
+    INSTALL_DIR       ${EXTERNAL_PROJECT_INSTALL_DIR}
 
     # after initial download, don't re-fetch source on subsequent CMake runs
     UPDATE_COMMAND    ""
@@ -52,24 +51,22 @@ ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
                       -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
                       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                       -DBUILD_SHARED_LIBS=ON
-                      # here we can pass in additional command configs
 
     # build step
     BUILD_COMMAND     ${EXTERNAL_PROJECT_BUILD_COMMAND}
 
     # install step
-    INSTALL_COMMAND   ${EXTERNAL_PROJECT_INSTALL_COMMAND}
-
-    # list files that we require to be installed, among others
-    BUILD_BYPRODUCTS  ${EXTERNAL_PROJECT_INSTALL_DIR}/lib/libads.so
-                      ${EXTERNAL_PROJECT_INSTALL_DIR}/include/ads/AdsLib.h 
-                      ${EXTERNAL_PROJECT_INSTALL_DIR}/include/ads/AdsDef.h  
+    INSTALL_COMMAND   ""
 
     # logging
     LOG_CONFIGURE     YES
     LOG_BUILD         YES
     LOG_INSTALL       YES
 )
+
+# ros buildfarm fix: separate ExternalProject install step from the clone/uild steps.
+# Reference: https://github.com/ros-industrial/ros2_canopen/blob/master/lely_core_libraries/CMakeLists.txt
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --install ${EXTERNAL_PROJECT_BINARY_DIR} --config ${CMAKE_BUILD_TYPE})")
 
 add_library(ads_vendor INTERFACE)
 add_library(ads_vendor::ads_vendor ALIAS ads_vendor)
