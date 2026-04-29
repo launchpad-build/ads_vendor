@@ -8,8 +8,8 @@ include(ExternalProject)
 
 
 set(ADS_EXTERNAL_PROJECT_NAME ads_external_project)
-set(ADS_GIT_REPOSITORY "https://github.com/Beckhoff/ADS.git")
-set(ADS_GIT_TAG "e85ef696447a77039a4c3710d7573c8df32c0d58")
+set(ADS_GIT_REPOSITORY "https://github.com/launchpad-build/ADS.git")
+set(ADS_GIT_TAG "beca9bfdac0368efd12f22dfb9968fd5eb65949b")  # launchpad-build/ADS tag 113.0.30-1
 
 set(EXTERNAL_PROJECT_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ads_external_build)
 set(EXTERNAL_PROJECT_SOURCE_DIR ${EXTERNAL_PROJECT_PREFIX}/src/Ads)
