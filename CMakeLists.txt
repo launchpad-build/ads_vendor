@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(ads_vendor)
 
 find_package(ament_cmake REQUIRED)
+find_package(Git REQUIRED)
 
 include(ExternalProject)
 
@@ -64,6 +65,16 @@ ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
     LOG_INSTALL       YES
 )
 
+# Reapply from the pinned source when the patch changes or a step is retried.
+ExternalProject_Add_Step(${ADS_EXTERNAL_PROJECT_NAME} closed_socket_patch
+    COMMAND ${GIT_EXECUTABLE} checkout -- AdsLib/Sockets.cpp
+    COMMAND ${GIT_EXECUTABLE} apply ${CMAKE_CURRENT_SOURCE_DIR}/patches/closed-socket.patch
+    WORKING_DIRECTORY <SOURCE_DIR>
+    DEPENDEES patch
+    DEPENDERS configure
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/patches/closed-socket.patch
+)
+
 # ros buildfarm fix: separate ExternalProject install step from the clone/uild steps.
 # Reference: https://github.com/ros-industrial/ros2_canopen/blob/master/lely_core_libraries/CMakeLists.txt
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --install ${EXTERNAL_PROJECT_BINARY_DIR} --config ${CMAKE_BUILD_TYPE})")
@@ -86,5 +97,15 @@ install(
 )
 
 ament_export_targets(ads_vendor_targets HAS_LIBRARY_TARGET)
+
+if(BUILD_TESTING AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_package(ament_cmake_test REQUIRED)
+  add_executable(test_closed_socket test/test_closed_socket.cpp)
+  add_dependencies(test_closed_socket ${ADS_EXTERNAL_PROJECT_NAME})
+  target_include_directories(test_closed_socket PRIVATE ${EXTERNAL_PROJECT_SOURCE_DIR}/AdsLib)
+  target_link_libraries(test_closed_socket PRIVATE ${EXTERNAL_PROJECT_BINARY_DIR}/AdsLib/libads.so)
+  ament_add_test(closed_socket COMMAND $<TARGET_FILE:test_closed_socket>
+    GENERATE_RESULT_FOR_RETURN_CODE_ZERO)
+endif()
 
 ament_package()

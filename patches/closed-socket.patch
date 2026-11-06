@@ -1,0 +1,18 @@
+diff --git a/AdsLib/Sockets.cpp b/AdsLib/Sockets.cpp
+--- a/AdsLib/Sockets.cpp
++++ b/AdsLib/Sockets.cpp
+@@ -242,7 +242,13 @@ size_t Socket::write(const Frame &frame) const
+ 
+ 	const int bufferLength = static_cast<int>(frame.size());
+ 	const char *const buffer = reinterpret_cast<const char *>(frame.data());
+-	const int status = sendto(m_Socket, buffer, bufferLength, 0, m_DestAddr,
++	// A closed PLC connection must return a socket error, not terminate the caller.
++#ifdef MSG_NOSIGNAL
++	const int flags = MSG_NOSIGNAL;
++#else
++	const int flags = 0;
++#endif
++	const int status = sendto(m_Socket, buffer, bufferLength, flags, m_DestAddr,
+ 				  m_DestAddrLen);
+ 
+ 	if (SOCKET_ERROR == status) {
