@@ -17,20 +17,15 @@ set(EXTERNAL_PROJECT_SOURCE_DIR ${EXTERNAL_PROJECT_PREFIX}/src/Ads)
 set(EXTERNAL_PROJECT_BINARY_DIR ${EXTERNAL_PROJECT_PREFIX}/build/Ads)
 set(EXTERNAL_PROJECT_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}) # ADS library should install its files (libraries, headers) into ads_vendor package install space.
 
-# Conditionally append BUILD_TYPE and PARALLEL_LEVEL to build command for ExternalProject_Add
+# Conditionally append BUILD_TYPE to build command for ExternalProject_Add
 set(EXTERNAL_PROJECT_BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR>)
 
 if(CMAKE_BUILD_TYPE)
   message(STATUS "ads_vendor: CMAKE_BUILD_TYPE for ADS library will be: ${CMAKE_BUILD_TYPE}")
   list(APPEND EXTERNAL_PROJECT_BUILD_COMMAND --config ${CMAKE_BUILD_TYPE})
-  list(APPEND EXTERNAL_PROJECT_INSTALL_COMMAND --config ${CMAKE_BUILD_TYPE})
 else()
   message(STATUS "ads_vendor: No CMAKE_BUILD_TYPE specified, defaulting to 'RelWithDebInfo'.")
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
-endif()
-
-if(DEFINED CMAKE_BUILD_PARALLEL_LEVEL)
-    list(APPEND ADS_BUILD_COMMAND -j${CMAKE_BUILD_PARALLEL_LEVEL})
 endif()
 
 ExternalProject_Add(${ADS_EXTERNAL_PROJECT_NAME}
